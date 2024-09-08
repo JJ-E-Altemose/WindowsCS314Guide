@@ -6,21 +6,42 @@ $yourPackageFileName = "windowspackage.json"
 
 $testSkip = "yes"
 
-#param filePath
-#returns nothing
+
 function WriteFileToOutput
 {
-    param($filePath)
+    <#
+    .SYNOPSIS
+    Write File to Console output
+    .DESCRIPTION
+    Write File to Console output
+    #>
+
+    param
+    (
+
+    [String]
+    #path to the file you want to write to the console
+    $filePath
+
+    )
 
     $fileContents = Get-Content -Path $filePath
 
     Write-Output $fileContents
 }
 
-# No parameters
-# Returns the base path including the final \
+
 function Get-Base-Project-Path
 {
+    <#
+    .SYNOPSIS
+    Gets the base path of this project
+    .DESCRIPTION
+    Gets the base path of the project by going to the directory right before the bin directory
+    .OUTPUTS
+    System.String. Returns the path of this project
+    #>
+
     $basePath = $PSScriptRoot
 
     $basePathArray = $basePath -split "\\"
@@ -38,36 +59,28 @@ function Get-Base-Project-Path
     return $basePath
 }
 
-#Param $basePath = the base path of the project aka the folder that contaians the the folder bin
-#return nothing it writes a simple message to the console and builds the jar
-function Build-Jar
-{
-    param($BasePath)
 
-    $workingDirectory = $BasePath + "target\classes"
-
-    $jarFileOutput = $basePath + "target\server.jar"
-    $classFileInput = $basePath + "target\classes\com\tco\server\WebApplication.class"
-    $class = "com.tco.server.WebApplication"
-
-    $buildingJarMessage = "`nBuilding Jar file in " + $jarFileOutput
-    Write-Output $buildingJarMessage
-
-    Start-Process jar -ArgumentList "cfe", $jarFileOutput, $class, $classFileInput ` -RedirectStandardOutput '.\console.out' -RedirectStandardError '.\console.err' -WorkingDirectory 
-
-    Write-Output "`nBuild complete"
-
-    WriteFileToOutput -filePath '.\console.out'
-    WriteFileToOutput -filePath '.\console.err'
-}
-
-
-
-#Param $basePath = the base path of the project aka the folder that contaians the the folder bin
-#Return nothing just swaps the package and windows package for running
 function Swap-Linux-Package-With-Windows-Package
 {
-    param($BasePath, $yourPackageFileName)
+    <#
+    .SYNOPSIS
+    Swaps your package in for running
+    .DESCRIPTION
+    Swaps the spesified package with the default one in the client directory the swapped out file will tempory renamed to linuxpackage.json
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath,
+
+    [String]
+    #The name of your json package must be in the bin folder along side this file
+    $yourPackageFileName
+
+    )
 
     $livePath = $BasePath + "client\package.json"
 
@@ -80,11 +93,25 @@ function Swap-Linux-Package-With-Windows-Package
     Move-Item -Path $cachedPath -Destination $livePath
 }
 
-#param string to search for in enviromentpaths
-#returns path that had that string in it ALWAYS returns first instance
+
 function GetPathWith
 {
-    param($stringInPath)
+    <#
+    .SYNOPSIS
+    Gets the path to a exe or .cmd
+    .DESCRIPTION
+    Gets the path to a exe or .cmd by using enviroment variables
+    #>
+
+    param
+    (
+
+    [String]
+    #the string the the enviroment path
+    $stringInPath
+
+    )
+
     $enviromentPaths = $env:Path -Split ";"
     foreach($path in $enviromentPaths)
     {
@@ -98,28 +125,44 @@ function GetPathWith
     }
 }
 
-#No parameters
-#returns path to java folder
-function GetJavaPath
-{
-    return GetPathWith -stringInPath "jdk"
-}
 
-#no parameters
-#returns path to node.js exe
 function GetNodeJSPathToExe
 {
+    <#
+    .SYNOPSIS
+    Gets the path of npm.cmd
+    .DESCRIPTION
+    Gets the path of npm.cmd by using enviroment variables
+    #>
+
     $basePathForNodeJS = GetPathWith -stringInPath "nodejs"
     $nodeJSPath = $basePathForNodeJS + "\npm.cmd"
 
     return $nodeJSPath
 }
 
-#Param Basepath
-#returns nothing just runs the npm command dev
+
 function RunNodeJS
 {
-    param($basePath, $pathToNPM)
+    <#
+    .SYNOPSIS
+    Runs the npm dev command
+    .DESCRIPTION
+    Runs the npm dev command within the spesified file
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath,
+
+    [String]
+    #Path To NPM.CMD you should only set this if for some reason even after restarting your system it says npm is not recognized
+    $pathToNPMCMD
+
+    )
 
     $nodeJsPath = ""
 
@@ -141,11 +184,28 @@ function RunNodeJS
     Start-Process @process -ArgumentList "run", "dev", "--prefix", $pathToPackage
 }
 
-#Param $basePath = the base path of the project aka the folder that contaians the the folder bin
-#Return nothing just swaps the package and linux package other users that dont use windows
+
 function Swap-Windows-Package-With-Linux-Package
 {
-    param($BasePath, $yourPackageFileName)
+    <#
+    .SYNOPSIS
+    Swaps your package back out
+    .DESCRIPTION
+    Swaps your package back out of the client directory
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath,
+
+    [String]
+    #The name of your json package must be in the bin folder along side this file
+    $yourPackageFileName
+
+    )
 
     $livePath = $BasePath + "client\package.json"
 
@@ -158,11 +218,28 @@ function Swap-Windows-Package-With-Linux-Package
     Move-Item -Path $cachedPath -Destination $livePath
 }
 
-#Param Basepath yourCustomPackage
-#returns nothing
+
 function HandleExiting
 {
-    param($basePath, $yourPackageFileName)
+    <#
+    .SYNOPSIS
+    Handles exiting
+    .DESCRIPTION
+    Promts the user to type anything to exit once this is typed it stops node js and java process and then swaps the package back as well as writing the output of the command to the console
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath,
+
+    [String]
+    #The name of your json package must be in the bin folder along side this file
+    $yourPackageFileName
+
+    )
 
     Read-Host -Prompt "type anything to exit"
     try
@@ -185,20 +262,60 @@ function HandleExiting
     Write-Output $npmErrorOutput
 }
 
-#param basePath
-#returns path to pom file
+
 function GetPathToMavenPom
 {
-    param($basePath)
+    <#
+    .SYNOPSIS
+    Gets the path to the maven pom file
+    .DESCRIPTION
+    Gets the path to the maven pom file
+    .OUTPUTS
+    System.String. Path to the maven pom file
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath
+
+    )
 
     return $basePath + "server\pom.xml"
 }
 
-#param pathToMavenCMD basePath mavenCommand ex install testSkip "" if no skip "anything" if skip
-#returns nothing
+
 function RunMavenCommand
 {
-    param($pathToMavenCMD, $basePath, $mavenCommand, $testSkip)
+    <#
+    .SYNOPSIS
+    Runs the maven command passed into it
+    .DESCRIPTION
+    Runs the maven command passed into it and adds -Dmaven.test.skip if the testSkip argument is not ""
+    #>
+
+    param
+    (
+
+    [String]
+    #Path To The mvn.cmd file or "" if you have maven building with your IDE
+    $pathToMavenCMD,
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath,
+
+    [String]
+    #The maven command to run
+    $mavenCommand,
+
+    [String]
+    #If it does not equal "" it will skip tests for building maven to ignore the security manager error in java version 18 and up
+    $testSkip
+
+    )
 
     $mavenOut = $basePath + "\bin\console.out"
     $mavenErrorOut = $basePath + "\bin\console.err"
@@ -221,11 +338,24 @@ function RunMavenCommand
     }
 }
 
-#param basePath
-#returns nothing writes to console
+
 function ReadMavenOut
 {
-    param($basePath)
+    <#
+    .SYNOPSIS
+    Reads the output from a maven command
+    .DESCRIPTION
+    Reads the output from console.out and console.err
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath
+
+    )
 
     $mavenOut = $basePath + "\bin\console.out"
     $mavenErrorOut = $basePath + "\bin\console.err"
@@ -238,11 +368,32 @@ function ReadMavenOut
     Write-Debug $mavenErrorOut
 }
 
-#parmas pathToMavenCMD, basePath
-#returns nothing just runs all the maven commands (This is a very brute force way to help make sure it works but is slow)
+
 function RunMavenCommands
 {
-    param($pathToMavenCMD, $basePath, $testSkip)
+    <#
+    .SYNOPSIS
+    Runs the commands to build the .jar
+    .DESCRIPTION
+    Runs the maven commands dependency:resolve, clean, package. If you run this you will need to change server.jar to server-null.jar in your package
+    #>
+
+    param
+    (
+
+    [String]
+    #Path To The mvn.cmd file or "" if you have maven building with your IDE
+    $pathToMavenCMD,
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath,
+
+    [String]
+    #If it does not equal "" it will skip tests for building maven to ignore the security manager error in java version 18 and up
+    $testSkip
+
+    )
     
     RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "dependency:resolve" -testSkip ""
 
@@ -257,11 +408,32 @@ function RunMavenCommands
     ReadMavenOut -basePath $basePath
 }
 
-#param basePath yourPackageFileName
-#returns nothing
+
 function NPMRun
 {
-    param($basePath, $yourPackageFileName, $pathToNPM)
+    <#
+    .SYNOPSIS
+    Runs the npm dev command
+    .DESCRIPTION
+    Swaps in your package and runs the NPM command
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath,
+
+    [String]
+    #The name of your json package must be in the bin folder along side this file
+    $yourPackageFileName,
+
+    [String]
+    #Path To NPM.CMD you should only set this if for some reason even after restarting your system it says npm is not recognized
+    $pathToNPMCMD
+
+    )
 
     Swap-Linux-Package-With-Windows-Package -BasePath $basePath -yourPackageFileName $yourPackageFileName
 
@@ -270,11 +442,23 @@ function NPMRun
     HandleExiting -basePath $basePath -yourPackageFileName $yourPackageFileName
 }
 
-#param basePath
-#return nothing cleans all files written to for debugging
+
 function Cleanup
 {
-    param($basePath)
+    <#
+    .SYNOPSIS
+    Cleans all biproducts of running this script
+    .DESCRIPTION
+    Swaps the package back with the default one for linux and removes the console.err and console.out files
+    #>
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath
+
+    )
 
     $errorOutput = $basePath + "bin\console.err"
     $output = $basePath + "bin\console.out"
@@ -283,12 +467,40 @@ function Cleanup
     Remove-Item -Path $output
 }
 
-#param yourPackageFileName pathToMavenCMD testSkip
-# Without a path to maven cmd it will look for already built class
-# returns nothing
+
 function Run
 {
-    param($yourPackageFileName, $pathToMavenCMD, $testSkip, $pathToNPMCMD)
+    <#
+        .SYNOPSIS
+        Runs the CS 314 Project
+        .DESCRIPTION
+        Run builds the project with maven if the path to maven variable is set. Then it runs the NPM commands and prompts the user with a exit command to exit cleanly. If testSkip is set to anything but "" it will skip the tests when building with maven
+        None
+    #>
+
+    param
+    (
+
+    [String]
+    #The name of your json package must be in the bin folder along side this file
+    $yourPackageFileName,
+
+
+    [String]
+    #Path To The mvn.cmd file or "" if you have maven building with your IDE
+    $pathToMavenCMD,
+
+
+    [String]
+    #If it does not equal "" it will skip tests for building maven to ignore the security manager error in java version 18 and up
+    $testSkip,
+
+
+    [String]
+    #Path To NPM.CMD you should only set this if for some reason even after restarting your system it says npm is not recognized
+    $pathToNPMCMD
+
+    )
 
     Write-Output "You should still make sure it works through the dev ops page it is possible that it here but not there."
 
@@ -305,5 +517,4 @@ function Run
 }
 
 Run -yourPackageFileName $yourPackageFileName -pathToMavenCMD $pathToMavenCMD -testSkip $testSkip -pathToNPMCMD $pathToNPM
-#JJ was here
 #there may be some dead code... i may have been making it much more complicated then it needed to be oops
