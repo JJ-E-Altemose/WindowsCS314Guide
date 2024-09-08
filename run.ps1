@@ -31,6 +31,36 @@ function WriteFileToOutput
 }
 
 
+function ReadCommandOut
+{
+    <#
+    .SYNOPSIS
+    Reads the output from a command
+    .DESCRIPTION
+    Reads the output from console.out and console.err and writes it to the console
+    #>
+
+    param
+    (
+
+    [String]
+    #The base path to the reposity should end in t31\
+    $basePath
+
+    )
+
+    $output = $basePath + "\bin\console.out"
+    $erroroutput = $basePath + "\bin\console.err"
+
+    $outContent = Get-Content -Path $output
+    $errorOutContent = Get-Content -Path $erroroutput
+
+    Write-Output $outContent
+
+    Write-Debug $errorOutContent
+}
+
+
 function Get-Base-Project-Path
 {
     <#
@@ -126,7 +156,7 @@ function GetPathWith
 }
 
 
-function GetNodeJSPathToExe
+function GetNPMPathToExe
 {
     <#
     .SYNOPSIS
@@ -142,7 +172,7 @@ function GetNodeJSPathToExe
 }
 
 
-function RunNodeJS
+function RunNPMCommand
 {
     <#
     .SYNOPSIS
@@ -171,7 +201,7 @@ function RunNodeJS
         $nodeJsPath = $pathToNPM
     }
     
-    $nodeJsPath = GetNodeJSPathToExe
+    $nodeJsPath = GetNPMPathToExe
 
     $pathToPackage = $basePath + "client\"
 
@@ -249,17 +279,9 @@ function HandleExiting
     }
     catch {}
 
-    Swap-Windows-Package-With-Linux-Package -BasePath $basePath -yourPackageFileName $yourPackageFileName 
+    Swap-Windows-Package-With-Linux-Package -BasePath $basePath -yourPackageFileName $yourPackageFileName
 
-    $npmOutputDirectory = $basePath + "\bin\console.out"
-    $npmErrorOutputDirectoy = $basePath + "\bin\console.err"
-
-    $npmOutput  = Get-Content -Path $npmOutputDirectory
-    $npmErrorOutput = Get-Content -Path $npmErrorOutputDirectoy
-
-    Write-Output $npmOutput
-
-    Write-Output $npmErrorOutput
+    ReadCommandOut -basePath $basePath
 }
 
 
@@ -336,36 +358,8 @@ function RunMavenCommand
     {
         Start-Process @process -ArgumentList "-f", $mavenPom, $mavenCommand ` -Wait -NoNewWindow
     }
-}
 
-
-function ReadMavenOut
-{
-    <#
-    .SYNOPSIS
-    Reads the output from a maven command
-    .DESCRIPTION
-    Reads the output from console.out and console.err
-    #>
-
-    param
-    (
-
-    [String]
-    #The base path to the reposity should end in t31\
-    $basePath
-
-    )
-
-    $mavenOut = $basePath + "\bin\console.out"
-    $mavenErrorOut = $basePath + "\bin\console.err"
-
-    $mavenOutContent = Get-Content -Path $mavenOut
-    $mavenErrorOutContent = Get-Content -Path $mavenErrorOut
-
-    Write-Output $mavenOutContent
-
-    Write-Debug $mavenErrorOut
+    ReadCommandOut -basePath $basePath
 }
 
 
@@ -397,15 +391,10 @@ function RunMavenCommands
     
     RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "dependency:resolve" -testSkip ""
 
-    ReadMavenOut -basePath $basePath
-
     RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "clean" -testSkip ""
-
-    ReadMavenOut -basePath $basePath
 
     RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "package" -testSkip $testSkip 
 
-    ReadMavenOut -basePath $basePath
 }
 
 
@@ -437,7 +426,7 @@ function NPMRun
 
     Swap-Linux-Package-With-Windows-Package -BasePath $basePath -yourPackageFileName $yourPackageFileName
 
-    RunNodeJS -basePath $basePath -pathToNPM $pathToNPM
+    RunNPMCommand -basePath $basePath -pathToNPM $pathToNPM
 
     HandleExiting -basePath $basePath -yourPackageFileName $yourPackageFileName
 }
@@ -515,6 +504,7 @@ function Run
 
     Cleanup -basePath $basePath
 }
+
 
 Run -yourPackageFileName $yourPackageFileName -pathToMavenCMD $pathToMavenCMD -testSkip $testSkip -pathToNPMCMD $pathToNPM
 #there may be some dead code... i may have been making it much more complicated then it needed to be oops
