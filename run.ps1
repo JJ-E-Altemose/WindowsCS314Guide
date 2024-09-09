@@ -55,9 +55,13 @@ function ReadCommandOut
     $outContent = Get-Content -Path $output
     $errorOutContent = Get-Content -Path $erroroutput
 
-    Write-Output $outContent
+    try
+    {
+        Write-Output $outContent
 
-    Write-Debug $errorOutContent
+        Write-Debug $errorOutContent
+    }
+    catch {}
 }
 
 
@@ -145,7 +149,7 @@ function GetPathWith
     $enviromentPaths = $env:Path -Split ";"
     foreach($path in $enviromentPaths)
     {
-        
+
         $conditional = $path.IndexOf($stringInPath) -ge 0
 
         if($conditional)
@@ -200,7 +204,7 @@ function RunNPMCommand
     {
         $nodeJsPath = $pathToNPM
     }
-    
+
     $nodeJsPath = GetNPMPathToExe
 
     $pathToPackage = $basePath + "client\"
@@ -388,12 +392,12 @@ function RunMavenCommands
     $testSkip
 
     )
-    
+
     RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "dependency:resolve" -testSkip ""
 
     RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "clean" -testSkip ""
 
-    RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "package" -testSkip $testSkip 
+    RunMavenCommand -pathToMavenCMD $pathToMavenCMD -basePath $basePath -mavenCommand "package" -testSkip $testSkip
 
 }
 
