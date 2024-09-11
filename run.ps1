@@ -507,6 +507,7 @@ function GetPostmanTestFolder
     return $postmanTestFolder
 }
 
+
 function StripPath
 {
     param
@@ -522,6 +523,7 @@ function StripPath
 
     return $splitString[$splitString.Length - 1]
 }
+
 
 function GetTeamNumber
 {
@@ -811,6 +813,6 @@ function Run
     Cleanup -basePath $basePath
 }
 
-Write-Information $javaJarFileName
+
 Run -yourPackageFileName $yourPackageFileName -pathToMavenCMD $pathToMavenCMD -testSkip $testSkip -pathToNPMCMD $pathToNPM -javaJarFileName $javaJarFileName
 #If you have a issue please check the issues page on the github for this and if it is not there feel free to post a issue
