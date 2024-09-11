@@ -1,14 +1,4 @@
-$pathToMavenCMD = ""
-
-$pathToNPM = ""
-
-$yourPackageFileName = "windowspackage.json"
-
-$testSkip = "yes"
-
-$javaJarFileName = "server-null.jar"
-
-$InformationPreference="Continue"
+param ($configFileName)
 
 function WriteFileToOutput
 {
@@ -814,5 +804,47 @@ function Run
 }
 
 
-Run -yourPackageFileName $yourPackageFileName -pathToMavenCMD $pathToMavenCMD -testSkip $testSkip -pathToNPMCMD $pathToNPM -javaJarFileName $javaJarFileName
+function ReadConfigAndRun
+{
+    param($configFileName)
+
+    $fullPath = $PSScriptRoot + "\" + $configFileName
+
+    $fileContent = Get-Content -Path $fullPath
+
+    if($fileContent -eq $null)
+    {
+        Write-Output "Cant Find or Read Config"
+        exit 1
+    }
+
+    $pathToMavenCMD = $fileContent[1]
+
+    $pathToNPM = $fileContent[3]
+
+    $yourPackageFileName = $fileContent[5]
+
+    $testSkip = $fileContent[7]
+
+    $javaJarFileName = $fileContent[9]
+
+    $InformationPreference = $fileContent[11]
+    
+    Write-Output "Reading config `n==========================="
+    Write-Output ('$pathToMavenCMD |' + $pathToMavenCMD + '|')
+    Write-Output ('$pathToNPM |' + $pathToNPM + '|')
+    Write-Output ('$yourPackageFileName |' + $yourPackageFileName + '|')
+    Write-Output ('$testSkip |' + $testSkip + '|')
+    Write-Output ('$javaJarFileName |' + $javaJarFileName + '|')
+    Write-Output ('$InformationPreference |' + $InformationPreference + '|')
+    Write-Output "==========================="
+
+    Run -yourPackageFileName $yourPackageFileName -pathToMavenCMD $pathToMavenCMD -testSkip $testSkip -pathToNPMCMD $pathToNPM -javaJarFileName $javaJarFileName
+}
+
+
+
+
+
+ReadConfigAndRun -configFileName $configFileName
 #If you have a issue please check the issues page on the github for this and if it is not there feel free to post a issue
