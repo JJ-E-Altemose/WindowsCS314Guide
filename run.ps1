@@ -1,11 +1,4 @@
-$pathToMavenCMD = ""
-
-$pathToNPM = ""
-
-$yourPackageFileName = "windowspackage.json"
-
-$testSkip = "yes"
-
+param ($configFileName)
 
 function WriteFileToOutput
 {
@@ -19,15 +12,53 @@ function WriteFileToOutput
     param
     (
 
-    [String]
+        [String]
     #path to the file you want to write to the console
-    $filePath
+        $filePath
 
     )
 
     $fileContents = Get-Content -Path $filePath
 
-    Write-Output $fileContents
+    try
+    {
+        Write-Output $fileContents
+    }
+    catch {}
+}
+
+
+function ReadCommandOutput
+{
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in t31\
+        $basePath
+
+    )
+
+    $consoleOutput = $basePath + "\bin\console.out"
+
+    WriteFileToOutput -filePath $consoleOutput
+}
+
+
+function ReadCommandError
+{
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in t31\
+        $basePath
+
+    )
+
+    $consoleErrorOutput = $basePath + "\bin\console.err"
+
+    WriteFileToOutput -filePath $consoleErrorOutput
 }
 
 
@@ -43,25 +74,14 @@ function ReadCommandOut
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath
+        $basePath
 
     )
 
-    $output = $basePath + "\bin\console.out"
-    $erroroutput = $basePath + "\bin\console.err"
-
-    $outContent = Get-Content -Path $output
-    $errorOutContent = Get-Content -Path $erroroutput
-
-    try
-    {
-        Write-Output $outContent
-
-        Write-Debug $errorOutContent
-    }
-    catch {}
+    ReadCommandOutput -basePath $basePath
+    ReadCommandError -basePath $basePath
 }
 
 
@@ -106,13 +126,13 @@ function Swap-Linux-Package-With-Windows-Package
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath,
+        $basePath,
 
-    [String]
+        [String]
     #The name of your json package must be in the bin folder along side this file
-    $yourPackageFileName
+        $yourPackageFileName
 
     )
 
@@ -140,9 +160,9 @@ function GetPathWith
     param
     (
 
-    [String]
+        [String]
     #the string the the enviroment path
-    $stringInPath
+        $stringInPath
 
     )
 
@@ -188,13 +208,13 @@ function RunNPMCommand
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath,
+        $basePath,
 
-    [String]
+        [String]
     #Path To NPM.CMD you should only set this if for some reason even after restarting your system it says npm is not recognized
-    $pathToNPMCMD
+        $pathToNPMCMD
 
     )
 
@@ -231,13 +251,13 @@ function Swap-Windows-Package-With-Linux-Package
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath,
+        $basePath,
 
-    [String]
+        [String]
     #The name of your json package must be in the bin folder along side this file
-    $yourPackageFileName
+        $yourPackageFileName
 
     )
 
@@ -265,13 +285,13 @@ function HandleExiting
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath,
+        $basePath,
 
-    [String]
+        [String]
     #The name of your json package must be in the bin folder along side this file
-    $yourPackageFileName
+        $yourPackageFileName
 
     )
 
@@ -303,9 +323,9 @@ function GetPathToMavenPom
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath
+        $basePath
 
     )
 
@@ -325,21 +345,21 @@ function RunMavenCommand
     param
     (
 
-    [String]
+        [String]
     #Path To The mvn.cmd file or "" if you have maven building with your IDE
-    $pathToMavenCMD,
+        $pathToMavenCMD,
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath,
+        $basePath,
 
-    [String]
+        [String]
     #The maven command to run
-    $mavenCommand,
+        $mavenCommand,
 
-    [String]
+        [String]
     #If it does not equal "" it will skip tests for building maven to ignore the security manager error in java version 18 and up
-    $testSkip
+        $testSkip
 
     )
 
@@ -379,17 +399,17 @@ function RunMavenCommands
     param
     (
 
-    [String]
+        [String]
     #Path To The mvn.cmd file or "" if you have maven building with your IDE
-    $pathToMavenCMD,
+        $pathToMavenCMD,
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath,
+        $basePath,
 
-    [String]
+        [String]
     #If it does not equal "" it will skip tests for building maven to ignore the security manager error in java version 18 and up
-    $testSkip
+        $testSkip
 
     )
 
@@ -414,17 +434,17 @@ function NPMRun
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath,
+        $basePath,
 
-    [String]
+        [String]
     #The name of your json package must be in the bin folder along side this file
-    $yourPackageFileName,
+        $yourPackageFileName,
 
-    [String]
+        [String]
     #Path To NPM.CMD you should only set this if for some reason even after restarting your system it says npm is not recognized
-    $pathToNPMCMD
+        $pathToNPMCMD
 
     )
 
@@ -447,17 +467,284 @@ function Cleanup
     param
     (
 
-    [String]
+        [String]
     #The base path to the reposity should end in t31\
-    $basePath
+        $basePath
 
     )
 
     $errorOutput = $basePath + "bin\console.err"
-    $output = $basePath + "bin\console.out"
+    $consoleOutput = $basePath + "bin\console.out"
 
     Remove-Item -Path $errorOutput
-    Remove-Item -Path $output
+    Remove-Item -Path $consoleOutput
+}
+
+
+function GetPostmanTestFolder
+{
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in t31\
+        $basePath
+
+    )
+
+    $postmanTestFolder = $basePath + "Postman"
+
+    return $postmanTestFolder
+}
+
+
+function StripPath
+{
+    param
+    (
+
+        [String]
+    #The full path to a file
+        $pathToFile
+
+    )
+
+    $splitString = $pathToFile -split "\\"
+
+    return $splitString[$splitString.Length - 1]
+}
+
+
+function GetTeamNumber
+{
+
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in t31\
+        $basePath
+
+    )
+
+    $splitBasePath = $basePath -split "\\"
+    $fullTeamString = $splitBasePath[$splitBasePath.Length - 2] # aditional offset because base path has trailing \
+    $teamNumber = $fullTeamString.Replace("t", "")
+
+    return $teamNumber
+}
+
+
+function BuildFoundPostmanMessage
+{
+
+    param
+    (
+
+        [String[]]
+    #The full path to the postman folder
+        $testFiles
+
+    )
+
+    $messageString =
+    "================================" + "`n" +
+            "Found Postman tests" + "`n" +
+            "================================" + "`n"
+
+    foreach($testFile in $testFiles)
+    {
+        $messageString += ($testFile + "`n")
+    }
+
+    $messageString += "================================"
+    return $messageString
+}
+
+
+function GetPostmanTestJsons
+{
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in tXX\
+        $basePath
+
+    )
+
+    $postmanFolder = GetPostmanTestFolder -basePath $basePath
+
+    $testFiles = Get-ChildItem -Path $postmanFolder -Name -Include *.json
+
+    [String[]]$returnTestFiles = @()
+
+    foreach($testFile in $testFiles)
+    {
+        [String]$testFileWithPath = $postmanFolder + "\" + $testFile
+        $returnTestFiles += $testFileWithPath
+    }
+    $foundPostmanMessage = BuildFoundPostmanMessage -testFiles $testFiles
+    Write-Information $foundPostmanMessage
+
+    return $returnTestFiles
+}
+
+
+function WaitUntilStartMessage
+{
+    $consoleOut = $PSScriptRoot + "\console.err"
+    $maxChecks = 1000
+
+    $checksComplete = 0
+    $conditon = $true
+    while($conditon -eq $true)
+    {
+        $fileContent = Get-Content -Path $consoleOut
+        foreach($line in $fileContent)
+        {
+            if($line.contains("[Thread-0] INFO org.eclipse.jetty.server.Server - Started"))
+            {
+                $conditon = $false
+            }
+        }
+        if($checksComplete -ge $maxChecks)
+        {
+            return
+        }
+
+        $checksComplete += 1
+    }
+}
+
+
+function StartServer
+{
+
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in t31\
+        $basePath,
+
+        [String]
+    #the name of the server jar file it may be server-null.jar or just server.jar
+        $javaJarFileName
+
+    )
+    $errorOutput = $basePath + "bin\console.err"
+    $consoleOutput = $basePath + "bin\console.out"
+
+
+    $jarFile = $basePath + "target\" + $javaJarFileName
+
+    $teamNumber = GetTeamNumber -basePath $basePath
+
+    $port = "413" + $teamNumber
+
+    Start-Process java -ArgumentList "-Dorg.slf4j.simpleLogger.log.com.tco=error", "-jar", $jarFile, "$port" ` -RedirectStandardOutput $consoleOutput -RedirectStandardError $errorOutput
+
+    $url = "http://localhost:" + $port
+
+    $env:BASE_URL = $url
+
+    WaitUntilStartMessage
+}
+
+
+function TryStopJava
+{
+    try
+    {
+        Stop-Process -Name java
+    }
+    catch
+    {
+        Write-Information "Warning java may already have stopped Or is unable to be stopped"
+    }
+}
+
+
+function RunCollection
+{
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in t31
+        $basePath,
+
+        [String]
+    #Postman Json
+        $postmanJson,
+
+        [String]
+    #the name of the server jar file it may be server-null.jar or just server.jar
+        $javaJarFileName
+
+    )
+
+    StartServer -basePath $basePath -javaJarFileName $javaJarFileName
+    $fileName = StripPath -pathToFile $postmanJson
+
+    Write-Output "==============================================="
+
+    $runningCollectionMessage = "Running Collection: " + $fileName
+
+    Write-Output $runningCollectionMessage
+    Write-Output "==============================================="
+
+    $workingDirectory = $basePath + "client\node_modules\newman\bin"
+
+    $errorOutput = $basePath + "bin\console.err"
+    $consoleOutput = $basePath + "bin\console.out"
+
+    $enviromentVariableArgument = "--env-var `"BASE_URL=" + $env:BASE_URL + "`""
+
+    $nodeTest = Start-Process node -WorkingDirectory $workingDirectory -ArgumentList "newman.js", "run", $postmanJson, $enviromentVariableArgument  ` -Wait -NoNewWindow -PassThru
+    $nodeTest.WaitForExit()
+    ReadCommandOut -basePath $basePath
+
+    if(! $nodeTest.ExitCode -eq 0)
+    {
+        $errorMessage = "Error occured while running Postman tests from " + $fileName
+        Write-Output $errorMessage
+        TryStopJava
+        exit 1
+    }
+    else
+    {
+        Write-Output "Successful"
+        TryStopJava
+        #todo make more like shell script
+        Start-Sleep -Seconds 2
+    }
+}
+
+
+function RunPostman
+{
+
+    param
+    (
+
+        [String]
+    #The base path to the reposity should end in t31
+        $basePath,
+
+        [String]
+    #the name of the server jar file it may be server-null.jar or just server.jar
+        $javaJarFileName
+
+    )
+
+    $testFiles = GetPostmanTestJsons -basePath $basePath
+
+    foreach($testFile in $testFiles)
+    {
+        RunCollection -basePath $basePath -postmanJson $testFile -javaJarFileName $javaJarFileName
+    }
 }
 
 
@@ -474,24 +761,29 @@ function Run
     param
     (
 
-    [String]
+        [String]
     #The name of your json package must be in the bin folder along side this file
-    $yourPackageFileName,
+        $yourPackageFileName,
 
 
-    [String]
+        [String]
     #Path To The mvn.cmd file or "" if you have maven building with your IDE
-    $pathToMavenCMD,
+        $pathToMavenCMD,
 
 
-    [String]
+        [String]
     #If it does not equal "" it will skip tests for building maven to ignore the security manager error in java version 18 and up
-    $testSkip,
+        $testSkip,
 
 
-    [String]
+        [String]
     #Path To NPM.CMD you should only set this if for some reason even after restarting your system it says npm is not recognized
-    $pathToNPMCMD
+        $pathToNPMCMD,
+
+
+        [String]
+    #the name of the server jar file it may be server-null.jar or just server.jar
+        $javaJarFileName
 
     )
 
@@ -504,11 +796,55 @@ function Run
         RunMavenCommands -pathToMavenCMD $pathToMavenCMD -basePath $basePath -testSkip $testSkip
     }
 
+    RunPostman -basePath $basePath -javaJarFileName $javaJarFileName
+
     NPMRun -basePath $basePath -yourPackageFileName $yourPackageFileName -pathToNPM $pathToNPMCMD
 
     Cleanup -basePath $basePath
 }
 
 
-Run -yourPackageFileName $yourPackageFileName -pathToMavenCMD $pathToMavenCMD -testSkip $testSkip -pathToNPMCMD $pathToNPM
-#there may be some dead code... i may have been making it much more complicated then it needed to be oops
+function ReadConfigAndRun
+{
+    param($configFileName)
+
+    $fullPath = $PSScriptRoot + "\" + $configFileName
+
+    $fileContent = Get-Content -Path $fullPath
+
+    if($fileContent -eq $null)
+    {
+        Write-Output "Cant Find or Read Config"
+        exit 1
+    }
+
+    $pathToMavenCMD = $fileContent[1]
+
+    $pathToNPM = $fileContent[3]
+
+    $yourPackageFileName = $fileContent[5]
+
+    $testSkip = $fileContent[7]
+
+    $javaJarFileName = $fileContent[9]
+
+    $InformationPreference = $fileContent[11]
+    
+    Write-Output "Reading config `n==========================="
+    Write-Output ('$pathToMavenCMD |' + $pathToMavenCMD + '|')
+    Write-Output ('$pathToNPM |' + $pathToNPM + '|')
+    Write-Output ('$yourPackageFileName |' + $yourPackageFileName + '|')
+    Write-Output ('$testSkip |' + $testSkip + '|')
+    Write-Output ('$javaJarFileName |' + $javaJarFileName + '|')
+    Write-Output ('$InformationPreference |' + $InformationPreference + '|')
+    Write-Output "==========================="
+
+    Run -yourPackageFileName $yourPackageFileName -pathToMavenCMD $pathToMavenCMD -testSkip $testSkip -pathToNPMCMD $pathToNPM -javaJarFileName $javaJarFileName
+}
+
+
+
+
+
+ReadConfigAndRun -configFileName $configFileName
+#If you have a issue please check the issues page on the github for this and if it is not there feel free to post a issue

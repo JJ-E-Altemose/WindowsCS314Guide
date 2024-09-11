@@ -1,0 +1,12 @@
+$pathToMavenCMD
+
+$pathToNPM
+
+$yourPackageFileName
+windowspackage.json
+$testSkip
+
+$javaJarFileName
+server-null.jar
+$InformationPreference
+Continue
