@@ -1,0 +1,1 @@
+Uninstall any previous resources from this except nodejs and then follow the guide except then go through steps 1-4
