@@ -1,3 +1,1 @@
-WARNING MAJOR ISSUE 
-    Postman failling will exit unsafley
-    
+ISSUE RESOLVED in v4.1
