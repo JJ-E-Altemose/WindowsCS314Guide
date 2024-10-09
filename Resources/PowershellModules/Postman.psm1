@@ -111,14 +111,14 @@ function RunCollection
 
     $nodeTest = Start-Process node -NoNewWindow -WorkingDirectory $workingDirectory -ArgumentList "newman.js", "run", $postmanJson, $enviromentVariableArgument  ` -Wait -PassThru
     $nodeTest.WaitForExit()
-    ReadCommandOut -basePath $basePath
 
     if(! $nodeTest.ExitCode -eq 0)
     {
         $errorMessage = "Error occured while running Postman tests from " + $fileName
         Write-Output $errorMessage
         TryStopJava
-        exit 1
+        throw "Error occured while running Postman tests from "
+        ReadCommandOut -basePath $basePath
     }
     else
     {
@@ -150,6 +150,6 @@ function RunPostman
     {
         RunCollection -basePath $basePath -postmanJson $testFile -javaJarFileName "server-null.jar"
     }
-
+    ReadCommandOut -basePath $basePath
     TryStopJava
 }

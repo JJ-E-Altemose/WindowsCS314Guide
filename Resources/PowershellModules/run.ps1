@@ -212,6 +212,8 @@ function Run
 
     $basePath = Get-Base-Project-Path
 
+    $canContinue = $true
+
     importModules -basePath $basePath
 
     if($exitFailed)
@@ -227,12 +229,22 @@ function Run
         RunMavenCommands -basePath $basePath -testSkip $testSkip
     }
 
-    if(!$noPostman)
+    try
     {
-        RunPostman -basePath $basePath
+        if(!$noPostman)
+        {
+            RunPostman -basePath $basePath
+        }
+    }
+    catch
+    {
+        $canContinue = $false
     }
 
-    HandleLoadingClientAndServer -basePath $basePath
+    if($canContinue)
+    {
+        HandleLoadingClientAndServer -basePath $basePath
+    }
 
     removeLogs -basePath $basePath
 
